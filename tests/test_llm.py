@@ -103,6 +103,40 @@ async def test_replay_miss_is_labelled_fallback(tmp_path: Path) -> None:
     assert call.reply.tool_call is not None and call.reply.tool_call.name == "check_booking"
 
 
+def test_fallback_answers_free_text_from_the_booking() -> None:
+    """After a booking, unrecorded free text gets the booking, not a fresh slot offer."""
+    from durable_text.llm.scripted import decide
+
+    booked = [
+        "[user] tuesday afternoon works",
+        '[assistant called hold_slot] {"slot_id": "tue-1400"}',
+        '[tool result] {"held": "tue-1400"}',
+        '[assistant called request_dispatch] {"notes": "x"}',
+        '[tool result] {"delegation": "d1", "status": "sent to dispatch"}',
+        "[assistant] Done, that time is held.",
+        "[user] thanks so much, when is the tech coming?",
+    ]
+    tools = [ToolSpec(name=t) for t in ("list_slots", "hold_slot", "request_dispatch", "check_booking")]
+    first = decide(LLMRequest(agent_id="scheduler", system="s", transcript=booked, tools=tools))
+    assert first.tool_call is not None and first.tool_call.name == "check_booking"
+
+    result = {
+        "held_window": "Tue 14:00-16:00",
+        "dispatch": "technician confirmed",
+        "technician": "Priya Nair",
+    }
+    after = [*booked, "[assistant called check_booking] {}", f"[tool result] {json.dumps(result)}"]
+    reply = decide(LLMRequest(agent_id="scheduler", system="s", transcript=after, tools=tools))
+    assert reply.text is not None
+    assert "Priya Nair" in reply.text and "Tue 14:00-16:00" in reply.text
+    assert "Tomorrow we have" not in reply.text
+
+    pending = {"held_window": "Tue 14:00-16:00", "dispatch": "dispatch is picking a technician"}
+    after = [*booked, "[assistant called check_booking] {}", f"[tool result] {json.dumps(pending)}"]
+    reply = decide(LLMRequest(agent_id="scheduler", system="s", transcript=after, tools=tools))
+    assert reply.text is not None and "picking a technician" in reply.text and "Priya" not in reply.text
+
+
 async def test_recording_appends_and_merges_first_answer(tmp_path: Path) -> None:
     jsonl = tmp_path / "calls.jsonl"
 

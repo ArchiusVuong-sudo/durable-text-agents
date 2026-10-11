@@ -146,7 +146,7 @@ function bubble(m) {
   const tags = [];
   if (m.direction === "out") {
     tags.push(`<span>${esc(m.label)}</span>`);
-    if (m.kind === "template") tags.push(`<span class="tag indigo">template · no LLM call</span>`);
+    if (m.kind === "template") tags.push(`<span class="tag indigo">no LLM call</span>`);
     if (m.status === "delivered") tags.push(`<span>delivered</span>`);
     else if (m.status === "queued") tags.push(`<span>sending…</span>`);
     else if (m.status === "suppressed") tags.push(`<span class="tag red">not sent: opted out</span>`);

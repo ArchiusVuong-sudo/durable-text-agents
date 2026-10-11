@@ -75,7 +75,9 @@ def seed(conn: sqlite3.Connection) -> None:
             "events",
         ):
             conn.execute(f"DELETE FROM {table}")  # noqa: S608 - fixed table names
-        conn.execute("DELETE FROM sqlite_sequence")
+        # Event ids must keep rising across resets: open SSE streams and reconnects
+        # (Last-Event-ID) tail "id > cursor", so restarting at 1 would silence them.
+        conn.execute("DELETE FROM sqlite_sequence WHERE name != 'events'")
         clock.set_(conn, clock.SIM_START)
         conn.execute(
             "INSERT INTO threads (id, phone, business_number, customer_json, active_agent, "

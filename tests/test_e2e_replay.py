@@ -3,10 +3,12 @@
 from __future__ import annotations
 
 import os
+import queue
 import shutil
 import subprocess
 import sys
 import tempfile
+import threading
 import time
 from collections.abc import Iterator
 from pathlib import Path
@@ -91,3 +93,60 @@ def test_main_flow_in_replay_mode(server: httpx.Client) -> None:
     assert any(w["outcome"] == "duplicate" for w in final["webhooks"])
     workers = {w["status"] for w in final["workers"]}
     assert "killed" in workers and "running" in workers
+
+
+def _sse_events(server: httpx.Client, headers: dict[str, str] | None = None) -> queue.Queue[tuple[str, str]]:
+    """Read (event, id) pairs from /api/stream on a background thread."""
+    out: queue.Queue[tuple[str, str]] = queue.Queue()
+
+    def run() -> None:
+        event, eid = "", ""
+        try:
+            with server.stream("GET", "/api/stream", headers=headers, timeout=None) as resp:
+                for line in resp.iter_lines():
+                    if line.startswith("event: "):
+                        event = line[7:]
+                    elif line.startswith("id: "):
+                        eid = line[4:]
+                    elif line == "" and event:
+                        out.put((event, eid))
+                        event, eid = "", ""
+        except httpx.HTTPError:
+            pass  # server shut down at the end of the test
+
+    threading.Thread(target=run, daemon=True).start()
+    return out
+
+
+def _next_change(events: queue.Queue[tuple[str, str]], timeout_s: float = 5.0) -> tuple[str, str]:
+    deadline = time.monotonic() + timeout_s
+    while (left := deadline - time.monotonic()) > 0:
+        try:
+            event, eid = events.get(timeout=left)
+        except queue.Empty:
+            break
+        if event == "change":
+            return event, eid
+    pytest.fail("no change event on the stream")
+
+
+def test_stream_keeps_flowing_after_reset(server: httpx.Client) -> None:
+    for _ in range(3):  # push event ids up so a restart at 1 would fall below the cursor
+        server.post("/api/clock/advance", json={"hours": 1}).raise_for_status()
+    events = _sse_events(server)
+    assert events.get(timeout=5)[0] == "hello"
+
+    server.post("/api/reset").raise_for_status()
+    _, reset_id = _next_change(events)
+    server.post("/api/clock/advance", json={"hours": 1}).raise_for_status()
+    _, after_id = _next_change(events)
+    assert int(after_id) > int(reset_id)
+
+
+def test_stream_follows_a_cursor_past_the_end(server: httpx.Client) -> None:
+    """A Last-Event-ID beyond the feed (old tab, recreated database) resyncs instead of stalling."""
+    events = _sse_events(server, headers={"Last-Event-ID": "999999"})
+    assert events.get(timeout=5)[0] == "hello"
+    _next_change(events)  # the resync itself
+    server.post("/api/clock/advance", json={"hours": 1}).raise_for_status()
+    _next_change(events)

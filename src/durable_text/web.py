@@ -141,6 +141,13 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 yield f"id: {cursor}\nevent: hello\ndata: {{}}\n\n"
                 idle = 0
                 while not await request.is_disconnected():
+                    top = _max_event(conn)
+                    if top < cursor:
+                        # The feed went backwards (database recreated, or a stale
+                        # Last-Event-ID): follow it and tell the page to refresh.
+                        cursor = top
+                        yield f"id: {cursor}\nevent: change\ndata: {json.dumps({'types': ['reset']})}\n\n"
+                        idle = 0
                     new = db.rows(
                         conn, "SELECT id, type FROM events WHERE id > ? ORDER BY id LIMIT 200", cursor
                     )

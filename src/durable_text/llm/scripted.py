@@ -111,11 +111,24 @@ def _scheduler(kind: str, what: str, result: Any, req: LLMRequest) -> LLMReply:
                 "you once it is confirmed."
             )
         if what == "check_booking" and isinstance(result, dict):
-            return _text(f"Your visit {result.get('held_window')} is held: {result.get('dispatch')}.")
+            return _text(_booking_text(result))
         return _text("Thanks, noted.")
-    if any(w in text for w in ("update", "status", "any news")):
+    if any(w in text for w in ("update", "status", "any news")) or _has_booking(req.transcript):
+        # Once a visit is booked, answer free text from the booking, not with new slots.
         return _tool("check_booking")
     return _tool("list_slots", day="tomorrow")
+
+
+def _has_booking(lines: list[str]) -> bool:
+    return any(line.startswith("[assistant called request_dispatch]") for line in lines)
+
+
+def _booking_text(result: dict[str, Any]) -> str:
+    window = result.get("held_window") or "your visit"
+    tech = result.get("technician")
+    if tech:
+        return f"{tech} is confirmed for {window}. We will text a reminder before the visit."
+    return f"Your visit {window} is held: {result.get('dispatch')}. I will text you once it is confirmed."
 
 
 def _pick_slot(result: dict[str, Any], text: str) -> str | None:
