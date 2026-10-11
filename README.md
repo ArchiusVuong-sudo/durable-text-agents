@@ -155,7 +155,3 @@ uv run mypy && uv run ruff check src tests scripts
 - A production version would connect a real SMS provider with signed webhooks, delivery receipts and carrier error codes, and keep consent records per number.
 - Turns currently replay the full chat history to the model. A production version would summarize or window long threads and cache prompts.
 - Superseding cancels the whole uncommitted turn. A production version could let read-only tool results survive a rerun.
-
-## License
-
-MIT
