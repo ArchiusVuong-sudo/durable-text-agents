@@ -102,7 +102,8 @@ button { font: inherit; cursor: pointer; }
   gap: 4px; background: #fbfbfd;
 }
 .empty-thread { margin: auto; text-align: center; color: var(--faint); font-size: 13px; padding: 0 24px; }
-.bubble-wrap { display: flex; flex-direction: column; max-width: 82%; animation: pop .18s ease-out; }
+.bubble-wrap { display: flex; flex-direction: column; max-width: 82%; }
+.bubble-wrap.new { animation: pop .18s ease-out; }
 .bubble-wrap.in { align-self: flex-end; align-items: flex-end; }
 .bubble-wrap.out { align-self: flex-start; align-items: flex-start; }
 .bubble { padding: 8px 12px; border-radius: 18px; line-height: 1.38; white-space: pre-wrap; word-wrap: break-word; }
@@ -148,8 +149,9 @@ button { font: inherit; cursor: pointer; }
 .empty b { display: block; color: var(--text); margin-bottom: 4px; font-weight: 600; }
 .card {
   background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 14px;
-  box-shadow: 0 1px 2px rgba(16,24,40,.04); animation: pop .2s ease-out;
+  box-shadow: 0 1px 2px rgba(16,24,40,.04);
 }
+.card.new { animation: pop .2s ease-out; }
 .card.running { border-color: #a5b4fc; box-shadow: 0 0 0 3px var(--accent-soft); }
 .card.superseded, .card.interrupted { background: #fafafa; }
 .card.superseded .steps, .card.interrupted .steps { opacity: .55; }

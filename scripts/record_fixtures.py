@@ -33,7 +33,7 @@ def main() -> int:
     p.add_argument("--keep", action="store_true", help="keep the temp folder for inspection")
     args = p.parse_args()
 
-    tmp = Path(tempfile.mkdtemp(prefix="dta-record-"))
+    tmp = Path(tempfile.mkdtemp(prefix="dta-record-", dir="/tmp"))  # short path: AF_UNIX limit
     sock = tmp / "app.sock"
     jsonl = tmp / "calls.jsonl"
     env = {k: v for k, v in os.environ.items() if not (k == "CLAUDECODE" or k.startswith("CLAUDE_CODE_"))}

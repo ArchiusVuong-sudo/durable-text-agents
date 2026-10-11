@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import os
+import shutil
 import subprocess
 import sys
+import tempfile
 import time
 from collections.abc import Iterator
 from pathlib import Path
@@ -18,7 +20,10 @@ from durable_text.demo_flow import Flow
 
 @pytest.fixture
 def server(tmp_path: Path) -> Iterator[httpx.Client]:
-    sock = tmp_path / "app.sock"
+    # AF_UNIX paths are capped near 104 bytes on macOS, and pytest's tmp_path under the
+    # default TMPDIR (/var/folders/...) is longer than that, so the socket gets a short folder.
+    sockdir = Path(tempfile.mkdtemp(prefix="dta-", dir="/tmp"))
+    sock = sockdir / "s"
     env = {k: v for k, v in os.environ.items() if k != "ANTHROPIC_API_KEY"}
     env.update(
         {
@@ -59,6 +64,7 @@ def server(tmp_path: Path) -> Iterator[httpx.Client]:
         except subprocess.TimeoutExpired:
             proc.kill()
         log.close()
+        shutil.rmtree(sockdir, ignore_errors=True)
 
 
 def test_main_flow_in_replay_mode(server: httpx.Client) -> None:

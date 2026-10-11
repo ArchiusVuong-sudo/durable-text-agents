@@ -13,10 +13,21 @@ let state = null;
 let lastMsgCount = -1;
 let fetching = false;
 let again = false;
+let lastJson = "";
+// Items already on screen: only unseen ones get the "new" class (and its fade-in),
+// so a re-render does not replay the animation on every bubble and card.
+const seen = { msgs: new Set(), turns: new Set() };
+let firstRender = true;
+function isNew(set, key) {
+  if (set.has(key)) return false;
+  set.add(key);
+  return !firstRender;
+}
 
 function esc(v) {
   return String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 }
+function plural(n, word) { return `${n} ${word}${n === 1 ? "" : "s"}`; }
 function secs(ms) { return ms == null ? "" : (ms / 1000).toFixed(1) + " s"; }
 function toast(text, isErr) {
   const t = $("toast");
@@ -74,8 +85,12 @@ async function refresh() {
   try {
     const res = await fetch("/api/state");
     if (!res.ok) throw new Error(res.statusText);
-    state = await res.json();
+    const text = await res.text();
+    if (text === lastJson) return; // nothing changed since the last render
+    lastJson = text;
+    state = JSON.parse(text);
     render(state);
+    firstRender = false;
   } catch (e) {
     toast("Server unreachable, retrying", true);
   } finally {
@@ -99,8 +114,8 @@ function render(s) {
   mode.title = s.mode_reason + (s.fixtures != null ? ` · ${s.fixtures} recorded LLM calls` : "");
   const t = s.totals;
   $("totals").textContent = s.mode === "live"
-    ? `${t.turns} committed turns · ${t.llm_calls} LLM calls · $${t.cost_usd.toFixed(3)} est.`
-    : `${t.turns} committed turns · ${t.llm_calls} LLM calls replayed`;
+    ? `${plural(t.turns, "committed turn")} · ${plural(t.llm_calls, "LLM call")} · $${t.cost_usd.toFixed(3)} est.`
+    : `${plural(t.turns, "committed turn")} · ${plural(t.llm_calls, "LLM call")} replayed`;
   renderPhone(s);
   renderTimeline(s);
   renderWorker(s);
@@ -139,7 +154,8 @@ function bubble(m) {
     if (m.kind === "keyword") tags.push(`<span class="tag indigo">keyword</span>`);
     if (m.kind === "ignored") tags.push(`<span class="tag red">opted out, no reply</span>`);
   }
-  return `<div class="bubble-wrap ${m.direction} ${m.status}">
+  const fresh = isNew(seen.msgs, `${m.id}:${m.sid}`) ? " new" : "";
+  return `<div class="bubble-wrap ${m.direction} ${m.status}${fresh}">
     <div class="bubble">${esc(m.body)}</div>
     <div class="meta">${tags.join("<span>·</span>")}</div></div>`;
 }
@@ -190,7 +206,8 @@ function turnCard(t) {
     sub = `${cp} · worker pid <b>${t.pid}</b> · agent <b>${esc(t.agent_before)}</b>`;
   }
   if (t.attempt > 1) sub += ` · attempt <b>${t.attempt}</b>`;
-  return `<article class="card ${t.status}">
+  const fresh = isNew(seen.turns, `${t.id}:${t.started_ms}`) ? " new" : "";
+  return `<article class="card ${t.status}${fresh}">
     <div class="card-head">
       <span class="kind ${t.kind}">${kindLabel}</span>
       <span class="card-title">${title}</span>
