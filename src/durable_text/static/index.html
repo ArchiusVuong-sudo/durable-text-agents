@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Durable Text Agents</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%234f46e5'/%3E%3Cpath d='M9 11h14v8h-8l-4 3v-3H9z' fill='white'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo" aria-hidden="true"></div>
+      <div>
+        <h1>Durable Text Agents</h1>
+        <p>SMS channel and durable sessions on LiveKit Agents</p>
+      </div>
+    </div>
+    <div class="synthetic" title="Every name, number and message here is invented">Synthetic data · fake carrier, no real SMS</div>
+    <div class="top-right">
+      <div id="totals" class="totals"></div>
+      <span id="mode" class="mode">…</span>
+      <button id="reset" class="btn ghost" title="Wipe the demo database and start over">Reset demo</button>
+    </div>
+  </header>
+
+  <main class="grid">
+    <section class="col phone-col" aria-label="Customer phone">
+      <div class="phone">
+        <div class="phone-head">
+          <div class="avatar">KC</div>
+          <div>
+            <div class="phone-title">Kettle &amp; Coil Repair</div>
+            <div class="phone-sub" id="phone-sub">+1 (312) 555-0100</div>
+          </div>
+          <span id="optout" class="pill red hidden">opted out</span>
+        </div>
+        <div id="thread" class="thread" aria-live="polite"></div>
+        <div id="chips" class="chips"></div>
+        <form id="composer" class="composer" autocomplete="off">
+          <input id="body" maxlength="480" placeholder="Text as Maya Chen…" aria-label="Message text">
+          <button class="send" aria-label="Send">
+            <svg viewBox="0 0 24 24" width="18" height="18"><path d="M3 11.5 20 4l-7.5 17-2.2-7.3z" fill="currentColor"/></svg>
+          </button>
+        </form>
+      </div>
+      <div class="devstrip">
+        <div>
+          <div class="label">Carrier webhook</div>
+          <div id="lastwebhook" class="mono small muted">no webhooks yet</div>
+        </div>
+        <button id="replay" class="btn small">Replay last webhook</button>
+      </div>
+    </section>
+
+    <section class="col timeline-col" aria-label="Turn timeline">
+      <div class="col-head">
+        <h2>Turn timeline</h2>
+        <span class="muted small">Each text is one transactional turn · newest first</span>
+      </div>
+      <div id="timeline" class="timeline"></div>
+    </section>
+
+    <aside class="col side-col">
+      <div class="panel">
+        <div class="panel-head">
+          <h3>Worker process</h3>
+          <button id="kill" class="btn danger small" title="SIGKILL the worker's process group">Kill worker</button>
+        </div>
+        <div id="worker"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head">
+          <h3>Simulated clock</h3>
+          <div class="btn-row">
+            <button id="adv" class="btn small">+3 h</button>
+            <button id="next" class="btn small">Next timer</button>
+          </div>
+        </div>
+        <div id="clock" class="clock"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><h3>Needs approval</h3><span class="muted small">dispatcher</span></div>
+        <div id="approvals"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><h3>Session state</h3><span class="muted small">last checkpoint</span></div>
+        <div id="session"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><h3>Durable timers</h3></div>
+        <div id="timers"></div>
+      </div>
+    </aside>
+  </main>
+  <div id="toast" class="toast hidden" role="status"></div>
+  <script src="/static/app.js"></script>
+</body>
+</html>
