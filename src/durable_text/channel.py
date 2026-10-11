@@ -63,17 +63,25 @@ def _receive(conn: sqlite3.Connection, sms: InboundSMS, coalesce_s: float) -> In
     cur = conn.execute(
         "INSERT INTO messages (thread_id, direction, sid, body, kind, status, segments, encoding, "
         "sim_at, created_ms) VALUES (?, 'in', ?, ?, ?, 'received', ?, ?, ?, ?)",
-        (tid, sms.MessageSid, sms.Body, kind, seg.segments, seg.encoding,
-         clock.fmt_iso(clock.get(conn)), db.now_ms()),
+        (
+            tid,
+            sms.MessageSid,
+            sms.Body,
+            kind,
+            seg.segments,
+            seg.encoding,
+            clock.fmt_iso(clock.get(conn)),
+            db.now_ms(),
+        ),
     )
     msg_id = int(cur.lastrowid or 0)
     if kw is not None:
         _handle_keyword(conn, tid, kw)
-        return InboundResult(outcome=f"keyword:{kw.value}", detail="answered from template, no LLM call",
-                             message_id=msg_id)
+        return InboundResult(
+            outcome=f"keyword:{kw.value}", detail="answered from template, no LLM call", message_id=msg_id
+        )
     if thread["opted_out"]:
-        return InboundResult(outcome="opted_out", detail="thread is opted out: no reply",
-                             message_id=msg_id)
+        return InboundResult(outcome="opted_out", detail="thread is opted out: no reply", message_id=msg_id)
     detail = _schedule_turn(conn, tid, coalesce_s)
     return InboundResult(outcome="accepted", detail=detail, message_id=msg_id)
 
@@ -116,7 +124,8 @@ def _handle_keyword(conn: sqlite3.Connection, thread_id: str, kw: Keyword) -> No
             (db.now_ms(), thread_id),
         )
         conn.execute(
-            "UPDATE jobs SET cancel_requested = 1 WHERE thread_id = ? AND kind = 'turn' AND status = 'running'",
+            "UPDATE jobs SET cancel_requested = 1 "
+            "WHERE thread_id = ? AND kind = 'turn' AND status = 'running'",
             (thread_id,),
         )
     elif kw is Keyword.START:
@@ -132,7 +141,9 @@ def _handle_keyword(conn: sqlite3.Connection, thread_id: str, kw: Keyword) -> No
 
 def replay_last_webhook(conn: sqlite3.Connection, coalesce_s: float) -> InboundResult | None:
     """Send the newest webhook again with the same MessageSid, as a carrier retry would."""
-    last = db.row(conn, "SELECT form_json FROM webhooks WHERE outcome != 'duplicate' ORDER BY id DESC LIMIT 1")
+    last = db.row(
+        conn, "SELECT form_json FROM webhooks WHERE outcome != 'duplicate' ORDER BY id DESC LIMIT 1"
+    )
     if last is None:
         return None
     return receive_inbound(conn, InboundSMS.model_validate_json(last["form_json"]), coalesce_s)

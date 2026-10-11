@@ -29,6 +29,9 @@ from typing import Any
 from claude_agent_sdk import (
     AssistantMessage,
     ClaudeAgentOptions,
+    HookContext,
+    HookInput,
+    HookJSONOutput,
     HookMatcher,
     ResultMessage,
     TextBlock,
@@ -71,7 +74,7 @@ def _kill_child(pid: int | None) -> None:
         os.kill(pid, signal.SIGKILL)
 
 
-async def _defer_hook(input_data: Any, tool_use_id: Any, context: Any) -> dict[str, Any]:
+async def _defer_hook(input_data: HookInput, tool_use_id: str | None, context: HookContext) -> HookJSONOutput:
     return {
         "hookSpecificOutput": {
             "hookEventName": "PreToolUse",
@@ -116,9 +119,7 @@ class ClaudeSDKLLM(CompletionLLM):
             else {}
         )
         hooks = (
-            {"PreToolUse": [HookMatcher(matcher=PREFIX + ".*", hooks=[_defer_hook])]}
-            if sdk_tools
-            else None
+            {"PreToolUse": [HookMatcher(matcher=PREFIX + ".*", hooks=[_defer_hook])]} if sdk_tools else None
         )
         return ClaudeAgentOptions(
             system_prompt=f"{req.system}\n\n{SMS_RULES}",
@@ -156,8 +157,7 @@ class ClaudeSDKLLM(CompletionLLM):
                 last_err = exc
             if attempt < self._max_attempts:
                 delay = self._base_delay * (2 ** (attempt - 1)) * (0.75 + random.random() / 2)
-                log.warning("LLM call retry %s/%s in %.1fs: %s", attempt, self._max_attempts,
-                            delay, last_err)
+                log.warning("LLM call retry %s/%s in %.1fs: %s", attempt, self._max_attempts, delay, last_err)
                 await asyncio.sleep(delay)
         raise ClaudeSDKError(f"LLM call failed after {self._max_attempts} attempts: {last_err}")
 
@@ -179,9 +179,7 @@ class ClaudeSDKLLM(CompletionLLM):
                     model = msg.model or model
                     if msg.error in ("rate_limit", "server_error"):
                         raise RetryableLLMError(f"assistant error: {msg.error}")
-                    texts.extend(
-                        b.text for b in msg.content if isinstance(b, TextBlock) and b.text.strip()
-                    )
+                    texts.extend(b.text for b in msg.content if isinstance(b, TextBlock) and b.text.strip())
                 elif isinstance(msg, ResultMessage):
                     result = msg
         except asyncio.CancelledError:

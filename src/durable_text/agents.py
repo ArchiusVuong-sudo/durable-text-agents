@@ -103,7 +103,10 @@ class Scheduler(DurableAgent):
             key,
         )
         open_slots = [
-            {"slot_id": r["id"], "window": clock.window(clock.parse(r["start_sim"]), clock.parse(r["end_sim"]))}
+            {
+                "slot_id": r["id"],
+                "window": clock.window(clock.parse(r["start_sim"]), clock.parse(r["end_sim"])),
+            }
             for r in rows
             if clock.parse(r["start_sim"]) > state.now
         ]
@@ -142,7 +145,9 @@ class Scheduler(DurableAgent):
         if not slot_id:
             raise ToolError("Hold a slot with hold_slot before requesting dispatch.")
         if state.values.get("dispatch_status") in ("pending", "confirmed"):
-            return json.dumps({"delegation": state.values.get("delegation_id"), "status": "already requested"})
+            return json.dumps(
+                {"delegation": state.values.get("delegation_id"), "status": "already requested"}
+            )
         slot = _slot(state, slot_id)
         task = {
             "skill": state.customer["appliance"],

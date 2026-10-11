@@ -36,14 +36,19 @@ def main() -> int:
     tmp = Path(tempfile.mkdtemp(prefix="dta-record-"))
     sock = tmp / "app.sock"
     jsonl = tmp / "calls.jsonl"
-    env = {
-        k: v for k, v in os.environ.items() if not (k == "CLAUDECODE" or k.startswith("CLAUDE_CODE_"))
-    }
-    env.update({"DTA_DB": str(tmp / "rec.db"), "DTA_RECORD": str(jsonl), "DTA_UDS": str(sock),
-                "DEMO_REPLAY": "0"})
+    env = {k: v for k, v in os.environ.items() if not (k == "CLAUDECODE" or k.startswith("CLAUDE_CODE_"))}
+    env.update(
+        {"DTA_DB": str(tmp / "rec.db"), "DTA_RECORD": str(jsonl), "DTA_UDS": str(sock), "DEMO_REPLAY": "0"}
+    )
     log = (tmp / "server.log").open("wb")
-    server = subprocess.Popen([sys.executable, "-m", "durable_text"], cwd=ROOT, env=env,
-                              stdout=log, stderr=log, start_new_session=True)
+    server = subprocess.Popen(
+        [sys.executable, "-m", "durable_text"],
+        cwd=ROOT,
+        env=env,
+        stdout=log,
+        stderr=log,
+        start_new_session=True,
+    )
     try:
         transport = httpx.HTTPTransport(uds=str(sock))
         with httpx.Client(transport=transport, base_url="http://app", timeout=30) as client:

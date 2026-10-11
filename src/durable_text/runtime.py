@@ -84,13 +84,16 @@ def trace_from_run(result: RunResult[Any]) -> list[dict[str, Any]]:
             steps.append({"t": "call", "name": ev.item.name, "args": _json(ev.item.arguments)})
         elif ev.type == "function_call_output":
             steps.append(
-                {"t": "output", "name": ev.item.name, "output": ev.item.output[:600],
-                 "error": bool(ev.item.is_error)}
+                {
+                    "t": "output",
+                    "name": ev.item.name,
+                    "output": ev.item.output[:600],
+                    "error": bool(ev.item.is_error),
+                }
             )
         elif ev.type == "agent_handoff" and ev.old_agent is not None:
             steps.append(
-                {"t": "handoff", "from": ev.old_agent.id if ev.old_agent else None,
-                 "to": ev.new_agent.id}
+                {"t": "handoff", "from": ev.old_agent.id if ev.old_agent else None, "to": ev.new_agent.id}
             )
     return steps
 
@@ -166,7 +169,9 @@ class Runtime:
         run.turn_id = self._open_turn(conn, run, agent_id, version, input_info)
         state = self._state(conn, job.thread_id, thread, values)
         agent = agent_class(agent_id)(state, chat_ctx=chat_ctx, resumed=True, wake=wake)
-        out = await self._run_session(run, state, agent, user_input="\n".join(texts_in) if wake is None else None)
+        out = await self._run_session(
+            run, state, agent, user_input="\n".join(texts_in) if wake is None else None
+        )
         with db.tx(conn):
             self._fence(conn, job)
             t = db.row(conn, "SELECT * FROM threads WHERE id = ?", job.thread_id)
@@ -177,8 +182,15 @@ class Runtime:
             conn.execute(
                 "INSERT INTO checkpoints (thread_id, version, agent_id, chat_ctx_json, values_json, "
                 "turn_id, created_ms) VALUES (?, ?, ?, ?, ?, ?, ?)",
-                (job.thread_id, new_version, out.agent_after, json.dumps(out.chat_ctx),
-                 json.dumps(out.values), run.turn_id, db.now_ms()),
+                (
+                    job.thread_id,
+                    new_version,
+                    out.agent_after,
+                    json.dumps(out.chat_ctx),
+                    json.dumps(out.values),
+                    run.turn_id,
+                    db.now_ms(),
+                ),
             )
             conn.execute(
                 "UPDATE threads SET active_agent = ?, checkpoint_version = ? WHERE id = ?",
@@ -197,8 +209,16 @@ class Runtime:
                 conn.execute(
                     "INSERT INTO messages (thread_id, direction, body, kind, status, segments, encoding, "
                     "turn_id, sim_at, created_ms) VALUES (?, 'out', ?, 'agent', ?, ?, ?, ?, ?, ?)",
-                    (job.thread_id, body, status, seg.segments, seg.encoding, run.turn_id, sim_now,
-                     db.now_ms()),
+                    (
+                        job.thread_id,
+                        body,
+                        status,
+                        seg.segments,
+                        seg.encoding,
+                        run.turn_id,
+                        sim_now,
+                        db.now_ms(),
+                    ),
                 )
             trace = self._apply_effects(conn, job.thread_id, run.turn_id, out)
             self._close_turn_in_tx(conn, run, "committed", None, out.agent_after, new_version, trace)
@@ -253,7 +273,11 @@ class Runtime:
         assert d is not None and thread is not None
         task = json.loads(d["task_json"])
         run.turn_id = self._open_turn(
-            conn, run, d["to_agent"], None, {"delegation_id": delegation_id, "from": d["from_agent"], "task": task}
+            conn,
+            run,
+            d["to_agent"],
+            None,
+            {"delegation_id": delegation_id, "from": d["from_agent"], "task": task},
         )
         with db.tx(conn):
             conn.execute("UPDATE delegations SET status = 'running' WHERE id = ?", (delegation_id,))
@@ -312,8 +336,12 @@ class Runtime:
                     run.progress.append({"t": "call", "name": call.name, "args": _json(call.arguments)})
                     if output is not None:
                         run.progress.append(
-                            {"t": "output", "name": output.name, "output": output.output[:600],
-                             "error": bool(output.is_error)}
+                            {
+                                "t": "output",
+                                "name": output.name,
+                                "output": output.output[:600],
+                                "error": bool(output.is_error),
+                            }
                         )
                 self._write_progress(conn, run)
 
@@ -348,7 +376,11 @@ class Runtime:
     # ---------- bookkeeping ----------
 
     def _open_turn(
-        self, conn: sqlite3.Connection, run: JobRun, agent_id: str, version: int | None,
+        self,
+        conn: sqlite3.Connection,
+        run: JobRun,
+        agent_id: str,
+        version: int | None,
         input_info: dict[str, Any],
     ) -> int:
         with db.tx(conn):
@@ -361,8 +393,18 @@ class Runtime:
                 "INSERT INTO turns (job_id, thread_id, kind, attempt, status, worker_pid, agent_before, "
                 "checkpoint_from, input_json, sim_at, started_ms) "
                 "VALUES (?, ?, ?, ?, 'running', ?, ?, ?, ?, ?, ?)",
-                (run.job.id, run.job.thread_id, run.job.kind, run.job.attempts, self._pid, agent_id,
-                 version, json.dumps(input_info), clock.fmt_iso(clock.get(conn)), db.now_ms()),
+                (
+                    run.job.id,
+                    run.job.thread_id,
+                    run.job.kind,
+                    run.job.attempts,
+                    self._pid,
+                    agent_id,
+                    version,
+                    json.dumps(input_info),
+                    clock.fmt_iso(clock.get(conn)),
+                    db.now_ms(),
+                ),
             )
             turn_id = int(cur.lastrowid or 0)
             db.emit(conn, "turn.started", turn_id=turn_id, kind=run.job.kind, pid=self._pid)
@@ -393,8 +435,13 @@ class Runtime:
             raise Superseded()
 
     def _close_turn_in_tx(
-        self, conn: sqlite3.Connection, run: JobRun, status: str, error: str | None,
-        agent_after: str | None = None, checkpoint_to: int | None = None,
+        self,
+        conn: sqlite3.Connection,
+        run: JobRun,
+        status: str,
+        error: str | None,
+        agent_after: str | None = None,
+        checkpoint_to: int | None = None,
         trace: list[dict[str, Any]] | None = None,
     ) -> None:
         if run.turn_id is None:
@@ -402,9 +449,16 @@ class Runtime:
         conn.execute(
             "UPDATE turns SET status = ?, error = ?, agent_after = COALESCE(?, agent_after), "
             "checkpoint_to = ?, trace_json = ?, llm_json = ?, ended_ms = ? WHERE id = ?",
-            (status, error, agent_after, checkpoint_to,
-             json.dumps(trace if trace is not None else run.progress), self._llm_json(run),
-             db.now_ms(), run.turn_id),
+            (
+                status,
+                error,
+                agent_after,
+                checkpoint_to,
+                json.dumps(trace if trace is not None else run.progress),
+                self._llm_json(run),
+                db.now_ms(),
+                run.turn_id,
+            ),
         )
 
     def _close_turn(self, conn: sqlite3.Connection, run: JobRun, status: str, error: str | None) -> None:
@@ -414,7 +468,8 @@ class Runtime:
 
     def _finish_job_in_tx(self, conn: sqlite3.Connection, job: Job, status: str) -> None:
         conn.execute(
-            "UPDATE jobs SET status = ?, finished_ms = ?, lease_owner = NULL WHERE id = ? AND lease_owner = ?",
+            "UPDATE jobs SET status = ?, finished_ms = ?, lease_owner = NULL "
+            "WHERE id = ? AND lease_owner = ?",
             (status, db.now_ms(), job.id, self._pid),
         )
 

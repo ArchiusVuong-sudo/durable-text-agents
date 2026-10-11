@@ -46,8 +46,13 @@ class Supervisor:
         logf = self.log_path.open("ab")
         try:
             return await asyncio.create_subprocess_exec(
-                sys.executable, "-m", "durable_text.worker",
-                env=env, stdin=asyncio.subprocess.DEVNULL, stdout=logf, stderr=logf,
+                sys.executable,
+                "-m",
+                "durable_text.worker",
+                env=env,
+                stdin=asyncio.subprocess.DEVNULL,
+                stdout=logf,
+                stderr=logf,
                 start_new_session=True,  # own process group: Kill reaches its CLI children too
             )
         finally:

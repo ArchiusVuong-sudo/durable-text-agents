@@ -191,9 +191,7 @@ class DurableAgent(Agent):
         """
         ctx = self.chat_ctx.copy()
         answered = {i.call_id for i in ctx.items if i.type == "function_call_output"}
-        ctx.items[:] = [
-            i for i in ctx.items if i.type != "function_call" or i.call_id in answered
-        ]
+        ctx.items[:] = [i for i in ctx.items if i.type != "function_call" or i.call_id in answered]
         return target(state, chat_ctx=ctx)
 
 

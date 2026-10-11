@@ -43,7 +43,17 @@ _LINK = re.compile(r"\[([^\]]+)\]\(([^)]+)\)")
 _EMPH = re.compile(r"(\*\*|__|\*|`)(.+?)\1")
 _HEADING = re.compile(r"^\s{0,3}#{1,6}\s*", re.M)
 _BULLET = re.compile(r"^\s*[-*•]\s+", re.M)
-_SMART = str.maketrans({"’": "'", "‘": "'", "“": '"', "”": '"', "–": "-", "—": "-", "…": "..."})
+_SMART = str.maketrans(
+    {
+        "\u2019": "'",
+        "\u2018": "'",
+        "\u201c": '"',
+        "\u201d": '"',
+        "\u2013": "-",
+        "\u2014": "-",
+        "\u2026": "...",
+    }
+)
 
 
 def to_plain_text(text: str) -> str:
@@ -70,8 +80,7 @@ HELP_WORDS = {"HELP", "INFO"}
 
 TEMPLATES: dict[Keyword, str] = {
     Keyword.STOP: (
-        "Kettle & Coil Repair: you are unsubscribed and will get no more texts. "
-        "Reply START to resubscribe."
+        "Kettle & Coil Repair: you are unsubscribed and will get no more texts. Reply START to resubscribe."
     ),
     Keyword.START: "Kettle & Coil Repair: you are resubscribed. Reply HELP for help, STOP to opt out.",
     Keyword.HELP: (

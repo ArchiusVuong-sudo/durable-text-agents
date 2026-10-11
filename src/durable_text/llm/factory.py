@@ -46,7 +46,11 @@ def detect_mode(settings: Settings) -> ModeInfo:
         return ModeInfo("replay", "no Claude Code CLI found")
     try:
         out = subprocess.run(
-            [str(cli), "auth", "status"], capture_output=True, text=True, timeout=20, env=env,
+            [str(cli), "auth", "status"],
+            capture_output=True,
+            text=True,
+            timeout=20,
+            env=env,
             cwd=env.get("TMPDIR") or "/tmp",
         )
         status = json.loads(out.stdout or "{}")

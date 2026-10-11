@@ -61,8 +61,18 @@ def seed(conn: sqlite3.Connection) -> None:
     db.init(conn)
     with db.tx(conn):
         for table in (
-            "clock", "threads", "checkpoints", "messages", "webhooks", "jobs", "turns",
-            "delegations", "timers", "technicians", "slots", "events",
+            "clock",
+            "threads",
+            "checkpoints",
+            "messages",
+            "webhooks",
+            "jobs",
+            "turns",
+            "delegations",
+            "timers",
+            "technicians",
+            "slots",
+            "events",
         ):
             conn.execute(f"DELETE FROM {table}")  # noqa: S608 - fixed table names
         conn.execute("DELETE FROM sqlite_sequence")

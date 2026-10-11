@@ -115,7 +115,13 @@ class Worker:
                 break
             task = asyncio.create_task(self.runtime.run_job(run), name=f"job-{run.job.id}")
             self.running[run.job.id] = (task, run)
-            task.add_done_callback(lambda _t, jid=run.job.id: self.running.pop(jid, None))
+            task.add_done_callback(self._forget(run.job.id))
+
+    def _forget(self, job_id: int) -> Callable[[asyncio.Task[str]], None]:
+        def done(_: asyncio.Task[str]) -> None:
+            self.running.pop(job_id, None)
+
+        return done
 
     def watch_cancels_and_renew(self) -> None:
         if not self.running:
@@ -171,10 +177,16 @@ def main() -> None:
     settings = Settings.from_env()
     mode: Mode = os.environ.get("DTA_MODE", "replay")  # type: ignore[assignment]
     removed = scrub_process_env()  # the CLI child inherits only the allowlist
-    logging.basicConfig(level=logging.INFO, format="%(asctime)s worker %(levelname)s %(name)s: %(message)s",
-                        stream=sys.stderr)
-    log.info("worker pid %s mode %s model %s (env scrubbed: %d vars)", os.getpid(), mode,
-             settings.model, len(removed))
+    logging.basicConfig(
+        level=logging.INFO, format="%(asctime)s worker %(levelname)s %(name)s: %(message)s", stream=sys.stderr
+    )
+    log.info(
+        "worker pid %s mode %s model %s (env scrubbed: %d vars)",
+        os.getpid(),
+        mode,
+        settings.model,
+        len(removed),
+    )
     worker = Worker(settings, mode)
     loop = asyncio.new_event_loop()
 

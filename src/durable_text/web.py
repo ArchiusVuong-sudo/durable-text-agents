@@ -65,7 +65,10 @@ class App:
 
     def state(self) -> dict[str, Any]:
         data = snapshot(
-            self.conn, mode=self.mode.mode, mode_reason=self.mode.reason, model=self.settings.model,
+            self.conn,
+            mode=self.mode.mode,
+            mode_reason=self.mode.reason,
+            model=self.settings.model,
             fixtures=self.fixture_count,
         )
         data["worker_pid"] = self.supervisor.pid
@@ -119,7 +122,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             raise HTTPException(422, exc.errors()) from exc
         result = channel.receive_inbound(a().conn, sms, settings.coalesce_s)
         return Response(
-            content="<Response></Response>", media_type="application/xml",
+            content="<Response></Response>",
+            media_type="application/xml",
             headers={"X-Outcome": result.outcome},
         )
 
@@ -137,7 +141,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 yield f"id: {cursor}\nevent: hello\ndata: {{}}\n\n"
                 idle = 0
                 while not await request.is_disconnected():
-                    new = db.rows(conn, "SELECT id, type FROM events WHERE id > ? ORDER BY id LIMIT 200", cursor)
+                    new = db.rows(
+                        conn, "SELECT id, type FROM events WHERE id > ? ORDER BY id LIMIT 200", cursor
+                    )
                     if new:
                         cursor = new[-1]["id"]
                         types = sorted({r["type"] for r in new})
@@ -151,8 +157,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             finally:
                 conn.close()
 
-        return StreamingResponse(gen(), media_type="text/event-stream",
-                                 headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
+        return StreamingResponse(
+            gen(),
+            media_type="text/event-stream",
+            headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+        )
 
     @api.post("/api/worker/kill")
     async def kill_worker() -> dict[str, Any]:

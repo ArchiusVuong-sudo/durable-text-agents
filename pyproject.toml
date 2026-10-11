@@ -39,7 +39,7 @@ testpaths = ["tests"]
 markers = ["live: needs a Claude login or ANTHROPIC_API_KEY (run with LIVE=1)"]
 
 [tool.ruff]
-line-length = 100
+line-length = 110
 target-version = "py312"
 
 [tool.ruff.lint]

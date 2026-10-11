@@ -56,7 +56,7 @@ class Flow:
         r.raise_for_status()
         self.sids.append(sid)
         self.log(f"> {body!r} -> {r.headers.get('x-outcome')}")
-        return r.headers.get("x-outcome", "")
+        return str(r.headers.get("x-outcome", ""))
 
     def post(self, path: str, **json: Any) -> State:
         r = self.client.post(path, json=json or None)
@@ -72,9 +72,7 @@ class Flow:
         self.text("hi, my dishwasher is leaking")
         time.sleep(self.gap_s)
         self.text("water all over the kitchen floor")
-        s = self.wait(
-            "first reply delivered", lambda s: _committed(s, "turn") >= 1 and _delivered_all(s)
-        )
+        s = self.wait("first reply delivered", lambda s: _committed(s, "turn") >= 1 and _delivered_all(s))
         first = _turns(s, "turn")[-1]
         if first["input"].get("coalesced") != 2:
             raise FlowError(f"expected 2 coalesced texts, got {first['input']}")
@@ -112,9 +110,7 @@ class Flow:
 
         # 6. A durable timer fires on the simulated clock.
         self.post("/api/clock/next-timer")
-        s = self.wait(
-            "reminder delivered", lambda s: _committed(s, "wake") >= 2 and _delivered_all(s)
-        )
+        s = self.wait("reminder delivered", lambda s: _committed(s, "wake") >= 2 and _delivered_all(s))
 
         # 7. A carrier retry with the same MessageSid gets no second reply.
         dup = self.post("/api/dev/replay-webhook")

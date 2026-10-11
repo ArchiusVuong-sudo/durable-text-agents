@@ -57,7 +57,7 @@ def _last_step(lines: list[str]) -> tuple[str, str, dict[str, Any] | str]:
             break
     tail = lines[-1] if lines else ""
     if tail.startswith(_RESULT):
-        raw = tail[len(_RESULT):]
+        raw = tail[len(_RESULT) :]
         try:
             return "tool", last_call, json.loads(raw)
         except json.JSONDecodeError:
@@ -68,7 +68,7 @@ def _last_step(lines: list[str]) -> tuple[str, str, dict[str, Any] | str]:
 def _latest_user(lines: list[str]) -> str:
     for line in reversed(lines):
         if line.startswith("[user] "):
-            return line[len("[user] "):]
+            return line[len("[user] ") :]
     return ""
 
 
@@ -95,8 +95,11 @@ def _scheduler(kind: str, what: str, result: Any, req: LLMRequest) -> LLMReply:
             return _tool("list_slots", day="tomorrow")
         if what == "list_slots" and isinstance(result, dict):
             pick = _pick_slot(result, text)
-            if pick and any(w in text for w in ("works", "better", "book", "morning", "afternoon")) \
-                    and "dishwasher" not in text:
+            if (
+                pick
+                and any(w in text for w in ("works", "better", "book", "morning", "afternoon"))
+                and "dishwasher" not in text
+            ):
                 return _tool("hold_slot", slot_id=pick)
             windows = ", ".join(s["window"].split(" ", 3)[-1] for s in result.get("open", []))
             return _text(f"Sorry about that. Tomorrow we have {windows}. Which works for you?")

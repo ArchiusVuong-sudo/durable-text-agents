@@ -136,7 +136,7 @@ def transcript_lines(messages: list[dict[str, Any]]) -> list[str]:
     return lines
 
 
-class CompletionLLM(llm.LLM):
+class CompletionLLM(llm.LLM[Any]):
     """Base class: subclasses implement ``complete``; this class handles LiveKit."""
 
     def __init__(self, model: str) -> None:
@@ -161,7 +161,7 @@ class CompletionLLM(llm.LLM):
         chat_ctx: llm.ChatContext,
         tools: list[llm.Tool] | None = None,
         conn_options: APIConnectOptions = DEFAULT_API_CONNECT_OPTIONS,
-        parallel_tool_calls: NotGivenOr[bool] = False,  # type: ignore[assignment]
+        parallel_tool_calls: NotGivenOr[bool] = False,
         tool_choice: NotGivenOr[llm.ToolChoice] = None,  # type: ignore[assignment]
         extra_kwargs: NotGivenOr[dict[str, Any]] = None,  # type: ignore[assignment]
     ) -> llm.LLMStream:
