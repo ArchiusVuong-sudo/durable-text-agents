@@ -17,7 +17,7 @@ Full video: https://github.com/ArchiusVuong-sudo/durable-text-agents/releases/do
 ## Architecture
 
 ```mermaid
-flowchart LR
+flowchart TB
     phone[Phone simulator in the browser] -->|Carrier-style webhook| hook[SMS webhook on FastAPI]
     hook -->|Texts and turn jobs| store[(SQLite in WAL mode)]
     sup[Supervisor in the web server] -->|Starts and restarts| worker[Agent worker process]
