@@ -1,0 +1,380 @@
+{
+ "calls": {
+  "01bfb1443eec636d5fae4590": {
+   "agent_id": "dispatch",
+   "api_ms": 2883,
+   "attempts": 1,
+   "cost_usd": 0.006120100000000001,
+   "duration_ms": 3650,
+   "input_tokens": 2089,
+   "key": "01bfb1443eec636d5fae4590",
+   "model": "claude-sonnet-5-5",
+   "output_tokens": 141,
+   "recorded_ms": null,
+   "reply": {
+    "text": null,
+    "tool_call": {
+     "arguments": {
+      "reason": "Priya Nair is in the East zone, free for Tue 13 Oct 14:00-16:00, and has the highest rating (4.9) among available dishwasher technicians.",
+      "technician_id": "tech-priya"
+     },
+     "call_id": "toolu_01PKSybmjMRbPjEet3LPsznd",
+     "name": "propose_assignment"
+    }
+   },
+   "request_tail": "[tool result] {\"slot\": \"Tue 13 Oct 14:00-16:00\", \"technicians\": [{\"technician_id\": \"tech-daniel\", \"name\": \"Daniel Moreau\", \"zone\": \"East\", \"rating\": 4.6, \"in_zone\": true, \"free_for_slot\": false}, {\"te",
+   "source": "live",
+   "tools": [
+    "list_technicians",
+    "propose_assignment"
+   ]
+  },
+  "240dae794b1c9c9f69a02c47": {
+   "agent_id": "scheduler",
+   "api_ms": 2773,
+   "attempts": 1,
+   "cost_usd": 0.0027397999999999997,
+   "duration_ms": 3462,
+   "input_tokens": 1927,
+   "key": "240dae794b1c9c9f69a02c47",
+   "model": "claude-sonnet-5-5",
+   "output_tokens": 59,
+   "recorded_ms": null,
+   "reply": {
+    "text": null,
+    "tool_call": {
+     "arguments": {
+      "day": "tomorrow"
+     },
+     "call_id": "toolu_019PeYkF1bLpto5dD2NMBowY",
+     "name": "list_slots"
+    }
+   },
+   "request_tail": "[user] hi, my dishwasher is leaking\nwater all over the kitchen floor",
+   "source": "live",
+   "tools": [
+    "check_booking",
+    "hold_slot",
+    "list_slots",
+    "request_dispatch"
+   ]
+  },
+  "2a60ec1b341a975f8936b7f5": {
+   "agent_id": "scheduler",
+   "api_ms": 2627,
+   "attempts": 1,
+   "cost_usd": 0.0076126,
+   "duration_ms": 3417,
+   "input_tokens": 2794,
+   "key": "2a60ec1b341a975f8936b7f5",
+   "model": "claude-sonnet-5-5",
+   "output_tokens": 78,
+   "recorded_ms": null,
+   "reply": {
+    "text": "Hi Maya, a reminder that Priya Nair is scheduled to arrive today, Tue 13 Oct, between 2 and 4pm. Please clear some space around the dishwasher so she can get to it easily. Thanks!",
+    "tool_call": null
+   },
+   "request_tail": "[tool result] {\"held_window\": \"Tue 13 Oct 14:00-16:00\", \"dispatch\": \"technician confirmed\", \"technician\": \"Priya Nair\"}",
+   "source": "live",
+   "tools": [
+    "check_booking",
+    "hold_slot",
+    "list_slots",
+    "request_dispatch"
+   ]
+  },
+  "372a9b61332edee444b75a3b": {
+   "agent_id": "scheduler",
+   "api_ms": 2959,
+   "attempts": 1,
+   "cost_usd": 0.0030701,
+   "duration_ms": 3863,
+   "input_tokens": 2087,
+   "key": "372a9b61332edee444b75a3b",
+   "model": "claude-sonnet-5-5",
+   "output_tokens": 86,
+   "recorded_ms": null,
+   "reply": {
+    "text": "Sorry about the leak, Maya! I can get someone out tomorrow (Tue 13 Oct) at 8-10am, 10am-12pm, or 2-4pm. Which works best? If you can, turn off the water supply to the dishwasher until then.",
+    "tool_call": null
+   },
+   "request_tail": "[tool result] {\"day\": \"tue\", \"open\": [{\"slot_id\": \"tue-0800\", \"window\": \"Tue 13 Oct 08:00-10:00\"}, {\"slot_id\": \"tue-1000\", \"window\": \"Tue 13 Oct 10:00-12:00\"}, {\"slot_id\": \"tue-1400\", \"window\": \"Tue 1",
+   "source": "live",
+   "tools": [
+    "check_booking",
+    "hold_slot",
+    "list_slots",
+    "request_dispatch"
+   ]
+  },
+  "6557b96d77fc876c1c32a2bb": {
+   "agent_id": "scheduler",
+   "api_ms": 2501,
+   "attempts": 1,
+   "cost_usd": 0.0057285,
+   "duration_ms": 3425,
+   "input_tokens": 2357,
+   "key": "6557b96d77fc876c1c32a2bb",
+   "model": "claude-sonnet-5-5",
+   "output_tokens": 69,
+   "recorded_ms": null,
+   "reply": {
+    "text": "Got it, Maya! Tomorrow (Tue 13 Oct) 2-4pm is held for you. Dispatch is confirming a technician now, and I'll text you as soon as it's confirmed.",
+    "tool_call": null
+   },
+   "request_tail": "[tool result] {\"delegation\": \"d1\", \"status\": \"sent to dispatch\"}",
+   "source": "live",
+   "tools": [
+    "check_booking",
+    "hold_slot",
+    "list_slots",
+    "request_dispatch"
+   ]
+  },
+  "66c13aa603c378cdfa329137": {
+   "agent_id": "scheduler",
+   "api_ms": 3299,
+   "attempts": 1,
+   "cost_usd": 0.0077984000000000005,
+   "duration_ms": 4365,
+   "input_tokens": 2676,
+   "key": "66c13aa603c378cdfa329137",
+   "model": "claude-sonnet-5-5",
+   "output_tokens": 145,
+   "recorded_ms": null,
+   "reply": {
+    "text": "Good news, Maya! Priya Nair is confirmed for Tue 13 Oct, 2-4pm. We'll text you a reminder before the visit.",
+    "tool_call": null
+   },
+   "request_tail": "[user] <instructions>\nEvent from dispatch: Priya Nair is confirmed for Tue 13 Oct 14:00-16:00. Text the customer this confirmation in one short message and say we will text a reminder before the visit",
+   "source": "live",
+   "tools": [
+    "check_booking",
+    "hold_slot",
+    "list_slots",
+    "request_dispatch"
+   ]
+  },
+  "98a9378afa1005f0eca867d6": {
+   "agent_id": "scheduler",
+   "api_ms": 2911,
+   "attempts": 1,
+   "cost_usd": 0.005231700000000001,
+   "duration_ms": 3787,
+   "input_tokens": 2187,
+   "key": "98a9378afa1005f0eca867d6",
+   "model": "claude-sonnet-5-5",
+   "output_tokens": 89,
+   "recorded_ms": null,
+   "reply": {
+    "text": "Happy to! Tomorrow morning I have two openings: 8-10am or 10am-12pm. Which one would you like?",
+    "tool_call": null
+   },
+   "request_tail": "[user] tomorrow morning works",
+   "source": "live",
+   "tools": [
+    "check_booking",
+    "hold_slot",
+    "list_slots",
+    "request_dispatch"
+   ]
+  },
+  "a65edd0cbe94680ced94a760": {
+   "agent_id": "scheduler",
+   "api_ms": 2804,
+   "attempts": 1,
+   "cost_usd": 0.0056613,
+   "duration_ms": 3966,
+   "input_tokens": 2265,
+   "key": "a65edd0cbe94680ced94a760",
+   "model": "claude-sonnet-5-5",
+   "output_tokens": 100,
+   "recorded_ms": null,
+   "reply": {
+    "text": null,
+    "tool_call": {
+     "arguments": {
+      "notes": "Dishwasher KC-DW45 (2023) leaking water onto kitchen floor. Customer advised to shut off water supply."
+     },
+     "call_id": "toolu_01CWwTTbMUcCdqdfX1visaUg",
+     "name": "request_dispatch"
+    }
+   },
+   "request_tail": "[tool result] {\"held\": \"tue-1400\", \"window\": \"Tue 13 Oct 14:00-16:00\"}",
+   "source": "live",
+   "tools": [
+    "check_booking",
+    "hold_slot",
+    "list_slots",
+    "request_dispatch"
+   ]
+  },
+  "a70f6a78b4014ba031483fda": {
+   "agent_id": "front_desk",
+   "api_ms": 2687,
+   "attempts": 1,
+   "cost_usd": 0.0028518,
+   "duration_ms": 3402,
+   "input_tokens": 1449,
+   "key": "a70f6a78b4014ba031483fda",
+   "model": "claude-sonnet-5-5",
+   "output_tokens": 79,
+   "recorded_ms": null,
+   "reply": {
+    "text": null,
+    "tool_call": {
+     "arguments": {
+      "issue": "dishwasher leaking water onto the kitchen floor"
+     },
+     "call_id": "toolu_01MZqjvSrCne4nwiPu2Jvwm3",
+     "name": "transfer_to_scheduler"
+    }
+   },
+   "request_tail": "[user] hi, my dishwasher is leaking\nwater all over the kitchen floor",
+   "source": "live",
+   "tools": [
+    "transfer_to_scheduler"
+   ]
+  },
+  "a7b5c21de56de3480da1713f": {
+   "agent_id": "scheduler",
+   "api_ms": 3353,
+   "attempts": 1,
+   "cost_usd": 0.008537500000000002,
+   "duration_ms": 4226,
+   "input_tokens": 2727,
+   "key": "a7b5c21de56de3480da1713f",
+   "model": "claude-sonnet-5-5",
+   "output_tokens": 198,
+   "recorded_ms": null,
+   "reply": {
+    "text": null,
+    "tool_call": {
+     "arguments": {},
+     "call_id": "toolu_017RFheNRNneTmmn8Kc3qppt",
+     "name": "check_booking"
+    }
+   },
+   "request_tail": "[user] <instructions>\nEvent from a reminder timer: Priya Nair arrives Tue 13 Oct 14:00-16:00. Text a short reminder and ask the customer to clear space around the appliance.\n</instructions>",
+   "source": "live",
+   "tools": [
+    "check_booking",
+    "hold_slot",
+    "list_slots",
+    "request_dispatch"
+   ]
+  },
+  "c9856f2a732a39fb673b3088": {
+   "agent_id": "scheduler",
+   "api_ms": 4914,
+   "attempts": 1,
+   "cost_usd": 0.0050496000000000004,
+   "duration_ms": 5454,
+   "input_tokens": 2196,
+   "key": "c9856f2a732a39fb673b3088",
+   "model": "claude-sonnet-5-5",
+   "output_tokens": 63,
+   "recorded_ms": null,
+   "reply": {
+    "text": null,
+    "tool_call": {
+     "arguments": {
+      "slot_id": "tue-1400"
+     },
+     "call_id": "toolu_01Y1b45juhduiGdXGMXpZqSH",
+     "name": "hold_slot"
+    }
+   },
+   "request_tail": "[user] tomorrow morning works\nactually afternoon is better",
+   "source": "live",
+   "tools": [
+    "check_booking",
+    "hold_slot",
+    "list_slots",
+    "request_dispatch"
+   ]
+  },
+  "ca36d97d11445ef8b616c0df": {
+   "agent_id": "scheduler",
+   "api_ms": 2664,
+   "attempts": 1,
+   "cost_usd": 0.0057144000000000006,
+   "duration_ms": 3487,
+   "input_tokens": 2439,
+   "key": "ca36d97d11445ef8b616c0df",
+   "model": "claude-sonnet-5-5",
+   "output_tokens": 34,
+   "recorded_ms": null,
+   "reply": {
+    "text": null,
+    "tool_call": {
+     "arguments": {},
+     "call_id": "toolu_019NLbUnawqHHFWwa8a7hrWr",
+     "name": "check_booking"
+    }
+   },
+   "request_tail": "[user] any update on my repair?",
+   "source": "live",
+   "tools": [
+    "check_booking",
+    "hold_slot",
+    "list_slots",
+    "request_dispatch"
+   ]
+  },
+  "e884ef843a54ba41ebcf930a": {
+   "agent_id": "scheduler",
+   "api_ms": 2935,
+   "attempts": 1,
+   "cost_usd": 0.0063672,
+   "duration_ms": 4150,
+   "input_tokens": 2520,
+   "key": "e884ef843a54ba41ebcf930a",
+   "model": "claude-sonnet-5-5",
+   "output_tokens": 66,
+   "recorded_ms": null,
+   "reply": {
+    "text": "Your Tue 13 Oct 2-4pm window is held. Dispatch has proposed a technician, but a dispatcher still has to confirm. I'll text you as soon as it's confirmed.",
+    "tool_call": null
+   },
+   "request_tail": "[tool result] {\"held_window\": \"Tue 13 Oct 14:00-16:00\", \"dispatch\": \"dispatch proposed a technician, waiting for a dispatcher to confirm\", \"technician\": null}",
+   "source": "live",
+   "tools": [
+    "check_booking",
+    "hold_slot",
+    "list_slots",
+    "request_dispatch"
+   ]
+  },
+  "fc9f57c9a96c35495c6e6710": {
+   "agent_id": "dispatch",
+   "api_ms": 2566,
+   "attempts": 1,
+   "cost_usd": 0.005538899999999999,
+   "duration_ms": 3382,
+   "input_tokens": 1779,
+   "key": "fc9f57c9a96c35495c6e6710",
+   "model": "claude-sonnet-5-5",
+   "output_tokens": 83,
+   "recorded_ms": null,
+   "reply": {
+    "text": null,
+    "tool_call": {
+     "arguments": {
+      "skill": "dishwasher",
+      "zone": "East"
+     },
+     "call_id": "toolu_01F3qcRGCT1ZiyVnCbhfweZ7",
+     "name": "list_technicians"
+    }
+   },
+   "request_tail": "[user] New task from scheduler: pick a dishwasher technician in the East zone for Tue 13 Oct 14:00-16:00 (tue-1400). Issue: dishwasher leaking water onto the kitchen floor",
+   "source": "live",
+   "tools": [
+    "list_technicians",
+    "propose_assignment"
+   ]
+  }
+ },
+ "version": 1
+}
